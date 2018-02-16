@@ -21,6 +21,8 @@ public interface Assessment extends Serializable {
 	public Question getQuestion(int questionNumber) throws 
 		InvalidQuestionNumber;
 
+	public String getCourseCode();
+
 	// Answer a particular question
 	public void selectAnswer(int questionNumber, int optionNumber) throws
 		InvalidQuestionNumber, InvalidOptionNumber;
