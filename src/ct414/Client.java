@@ -78,10 +78,11 @@ public class Client {
             int user = Integer.parseInt(JOptionPane.showInputDialog("Please input ID: "));
             String pass = JOptionPane.showInputDialog("Please input password: ");
             this.sessToken = this.server.login(user, pass);
+            this.user = user;
         } catch (NullPointerException  e) {
             System.out.println(this.sessToken);
         }
-        this.user = user;
+
     }
 
     public void login(){
@@ -111,9 +112,6 @@ public class Client {
             ExamServer exam = (ExamServer) registry.lookup(name);
             System.out.println("Connected to servers...");
             new Client(exam);
-
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -7,18 +7,21 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
+import static java.lang.Boolean.TRUE;
+
 public class ExamEngine implements ExamServer {
 
     private List<Assessment> assessment_list;
-
+    private List<Student> student_list;
 
     // Constructor is required
     public ExamEngine() {
         super();
     }
 
-    public ExamEngine(List<Assessment> assessment_list) {
+    public ExamEngine(List<Assessment> assessment_list, List<Student> student_list) {
         this.assessment_list = assessment_list;
+        this.student_list = student_list;
     }
 
     // Implement the methods defined in the ExamServer interface...
@@ -26,32 +29,41 @@ public class ExamEngine implements ExamServer {
     public int login(int studentid, String password) throws 
                 UnauthorizedAccess, RemoteException {
         try {
-            for(int i = 0; i < assessment_list.size(); i++){
-                if(assessment_list.get(i).getAssociatedID()==studentid){
-                    Random rand = new Random();
-                    int token = rand.nextInt(999999)+1;
-                    return token;
+            for (int i = 0; i < student_list.size(); i++){
+                if(student_list.get(i).getStudentID()==studentid){
+                    if(student_list.get(i).getPassword().equals(password)){
+                        Random rand = new Random();
+                        int token = rand.nextInt(999999)+1;
+                        student_list.get(i).setToken(token);
+                        return token;
+                    } else {
+                        throw new UnauthorizedAccess("Password Incorrect");
+                    }
                 }
             }
-            throw new UnauthorizedAccess("This ID is not associated with any assessment");
+            throw new UnauthorizedAccess("ID not found");
         } catch (UnauthorizedAccess e){
             System.out.println(e.toString());
             return 0;
         }
-	// TBD: You need to implement this method!
-	// For the moment method just returns an empty or null value to allow it to compile
-
     }
 
     // Return a summary list of Assessments currently available for this studentid
     public List<String> getAvailableSummary(int token, int studentid) throws
                 UnauthorizedAccess, NoMatchingAssessment, RemoteException {
+
         List<String> summaries = new ArrayList<>();
-        for (int i=0;i<assessment_list.size();i++){
-            //if(assessment_list.get(i).getAssociatedID()==studentid) {
-                summaries.add(assessment_list.get(i).getInformation());
-            //}
+
+        for(int i = 0; i < student_list.size(); i++) {
+            if(student_list.get(i).getStudentID()==studentid&&student_list.get(i).getToken()==token){
+                for (int j=0;j<assessment_list.size();j++){
+                    if(assessment_list.get(j).getAssociatedID()==studentid) {
+                        summaries.add(assessment_list.get(j).getInformation());
+                    }
+                }
+            }
         }
+
         return summaries;
     }
 
@@ -59,17 +71,33 @@ public class ExamEngine implements ExamServer {
     public Assessment getAssessment(int token, int studentid, String courseCode) throws
                 UnauthorizedAccess, NoMatchingAssessment, RemoteException {
 
-        for (int i=0;i<assessment_list.size();i++){
-            if(assessment_list.get(i).getCourseCode().equals(courseCode)){
-                return assessment_list.get(i);
+        for(int i = 0; i < student_list.size(); i++) {
+            if (student_list.get(i).getStudentID() == studentid && student_list.get(i).getToken() == token) {
+                for (int j = 0; j < assessment_list.size(); j++) {
+                    if (assessment_list.get(j).getCourseCode().equals(courseCode)) {
+                        return assessment_list.get(j);
+                    }
+                }
             }
         }
+
         return null;
     }
 
     // Submit a completed assessment
     public void submitAssessment(int token, int studentid, Assessment completed) throws 
                 UnauthorizedAccess, NoMatchingAssessment, RemoteException {
+
+        for(int i = 0; i < student_list.size(); i++) {
+            if(student_list.get(i).getStudentID()==studentid&&student_list.get(i).getToken()==token){
+                if(new GregorianCalendar().getTime().compareTo(completed.getClosingDate())<=0) {
+                    completed.setCompleted(TRUE);
+                    System.out.println("Assignment submitted");
+                } else {
+                    System.out.println("Closing date has passed");
+                }
+            }
+        }
 
         // TBD: You need to implement this method!
     }
@@ -91,7 +119,7 @@ public class ExamEngine implements ExamServer {
         set2.add(q3);
         set2.add(q4);
 
-        Date closingDate1 = new GregorianCalendar(2018, Calendar.FEBRUARY, 21).getTime();
+        Date closingDate1 = new GregorianCalendar(2018, Calendar.FEBRUARY, 15).getTime();
         Date closingDate2 = new GregorianCalendar(2018, Calendar.FEBRUARY, 18).getTime();
 
         Assessment assessment1 = new AssessmentObj("4BCT: Assessment 1", closingDate1, set1, 1, "4BCT");
@@ -101,12 +129,18 @@ public class ExamEngine implements ExamServer {
         assessments.add(assessment1);
         assessments.add(assessment2);
 
+        Student stud1 = new Student(1, "password1");
+        Student stud2 = new Student(2, "password2");
+        List<Student> students = new ArrayList<>();
+        students.add(stud1);
+        students.add(stud2);
+
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new SecurityManager());
         }
         try {
             String name = "ExamServer";
-            ExamServer engine = new ExamEngine(assessments);
+            ExamServer engine = new ExamEngine(assessments, students);
             ExamServer stub =
                 (ExamServer) UnicastRemoteObject.exportObject(engine, 0);
             Registry registry = LocateRegistry.getRegistry();

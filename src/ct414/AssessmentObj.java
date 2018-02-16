@@ -11,6 +11,7 @@ public class AssessmentObj implements Assessment {
     private List<Question> questions;
     private int ID;
     private String courseCode;
+    private Boolean completed;
 
     public AssessmentObj(String info, Date closingDate, List<Question> questions, int ID, String courseCode){
         this.info = info;
@@ -60,6 +61,11 @@ public class AssessmentObj implements Assessment {
         return this.ID;
     }
 
+
+    public void setCompleted(Boolean completed) {
+        this.completed = completed;
+    }
+
     public void setInfo(String info) {
         this.info = info;
     }
@@ -78,5 +84,9 @@ public class AssessmentObj implements Assessment {
 
     public void setCourseCode(String courseCode) {
         this.courseCode = courseCode;
+    }
+
+    public Boolean getCompleted() {
+        return completed;
     }
 }
