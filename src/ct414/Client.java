@@ -15,13 +15,18 @@ public class Client {
     public Client(ExamServer server) throws NoMatchingAssessment, UnauthorizedAccess, RemoteException {
 
         while(true) {
-            // login();
+            this.server = server;
+            login();
             System.out.println("Available Assessments:");
             ArrayList<String> assessmentTitles = (ArrayList<String>) server.getAvailableSummary(this.sessToken, this.user);
 
+            if(assessmentTitles.isEmpty()){
+                System.out.println("No Assessments Available");
+                break;
+            }
+
             String[] strArray = (String[]) assessmentTitles.toArray(new String[0]);
 
-            System.out.println(strArray[0]);
             String assessChoice = (String) JOptionPane.showInputDialog(null, "Which assessment?",
                     "Assessment Choice", JOptionPane.QUESTION_MESSAGE, null, // Use
                     // default
@@ -29,10 +34,19 @@ public class Client {
                     strArray, // Array of choices
                     strArray[0]); // Initial choice
 
-            Assessment assessment = null;
-            assessment = server.getAssessment(this.sessToken, this.user, assessChoice);
 
-            JOptionPane.showMessageDialog(null, "Assingment due: " + assessment.getClosingDate());
+            System.out.println(assessChoice);
+            String courseCode = assessChoice.split(":")[0];
+            System.out.println(courseCode);
+            Assessment assessment = null;
+            assessment = server.getAssessment(this.sessToken, this.user, courseCode);
+
+            if(assessment==null){
+                System.out.println("Assessment not found");
+                break;
+            }
+
+            JOptionPane.showMessageDialog(null, "Assignment due: " + assessment.getClosingDate());
 
             ArrayList<Question> questions = (ArrayList<Question>) assessment.getQuestions();
 
@@ -64,15 +78,17 @@ public class Client {
             int user = Integer.parseInt(JOptionPane.showInputDialog("Please input ID: "));
             String pass = JOptionPane.showInputDialog("Please input password: ");
             this.sessToken = this.server.login(user, pass);
+            this.user = user;
         } catch (NullPointerException  e) {
             System.out.println(this.sessToken);
         }
-        this.user = user;
+
     }
 
     public void login(){
         try {
             loginCreds();
+            if(this.sessToken==0){throw new Exception("Login Failed");}
         } catch (Exception e) {
             System.out.println(e.toString());
             JOptionPane.showMessageDialog(null,
@@ -96,9 +112,6 @@ public class Client {
             ExamServer exam = (ExamServer) registry.lookup(name);
             System.out.println("Connected to servers...");
             new Client(exam);
-
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }

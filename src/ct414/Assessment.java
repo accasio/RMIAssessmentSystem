@@ -21,6 +21,8 @@ public interface Assessment extends Serializable {
 	public Question getQuestion(int questionNumber) throws 
 		InvalidQuestionNumber;
 
+	public String getCourseCode();
+
 	// Answer a particular question
 	public void selectAnswer(int questionNumber, int optionNumber) throws
 		InvalidQuestionNumber, InvalidOptionNumber;
@@ -31,6 +33,8 @@ public interface Assessment extends Serializable {
 	// Return studentid associated with this assessment object
 	// This will be preset on the server before object is downloaded
 	public int getAssociatedID();
+
+	public void setCompleted(Boolean completed);
 
 }
 
