@@ -1,6 +1,8 @@
 # RMIAssessmentSystem
 
-SERVER
+Command line intrustions to run RMIAssessmentSystem.
+
+# Server
 
 javac ct414/ExamServer.java ct414/Assessment.java ct414/Question.java
 
@@ -13,7 +15,7 @@ start rmiregistry
 java -cp .;.\runner.jar -Djava.rmi.server.codebase=file:./runner.jar -Djava.rmi.server.hostname=localhost -Djava.security.policy=global.policy ct414.ExamEngine
 
 
-Client
+# Client
 
 javac -cp runner.jar ct414\Client.java ct414\UnauthorizedAccess.java ct414\NoMatchingAssessment.java ct414\InvalidQuestionNumber.java ct414\InvalidOptionNumber.java
 
