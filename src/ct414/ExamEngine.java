@@ -115,12 +115,13 @@ public class ExamEngine implements ExamServer {
         set1.add(q3);
 
         List<Question> set2 = new ArrayList<>();
+        set1.add(q1);
         set2.add(q2);
         set2.add(q3);
         set2.add(q4);
 
         Date closingDate1 = new GregorianCalendar(2018, Calendar.FEBRUARY, 15).getTime();
-        Date closingDate2 = new GregorianCalendar(2018, Calendar.FEBRUARY, 18).getTime();
+        Date closingDate2 = new GregorianCalendar(2018, Calendar.MARCH, 18).getTime();
 
         Assessment assessment1 = new AssessmentObj("4BCT: Assessment 1", closingDate1, set1, 1, "4BCT");
         Assessment assessment2 = new AssessmentObj("4BSC: Assessment 2", closingDate2, set2, 2, "4BSC");
